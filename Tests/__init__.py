@@ -35,7 +35,7 @@ class AlertLogicAPITester(unittest.TestCase):
         print('setUp AlertLogicAPITester')
         if 'customer_id' not in self.info:
             print('Loading / input for Alert Logic info')
-            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.alertlogic.json')) as f:
+            with open(os.path.expanduser('~/.alertlogic.json')) as f:
                 self.info.update(json.load(f))
             if 'customer_id' not in self.info:
                 self.info['customer_id'] = input('Enter Alert Logic Customer ID: ')
