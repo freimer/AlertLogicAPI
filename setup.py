@@ -40,7 +40,7 @@ setup(name = 'AlertLogicAPI',
     classifiers = [ 'Development Status :: 3 - Alpha',
                     'Intended Audience :: Developers',
                     'Intended Audience :: System Administrators',
-                    'License :: OSI Approved :: General Public License',
+                    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
                     'Operating System :: OS Independent',
                     'Topic :: System :: Networking :: Monitoring',
                     ]
