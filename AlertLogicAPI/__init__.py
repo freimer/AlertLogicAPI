@@ -266,7 +266,7 @@ class Client(object):
         if type is not None and type not in ['pem']:
             raise AlertLogicAPI.Exceptions.ArgumentError(
                 'AlertLogicAPI.Client.get_keypairs(): Invalid type argument, must be one of [pem]')
-        if type is not None and offset is None:
+        if offset is not None and limit is None:
             raise AlertLogicAPI.Exceptions.ArgumentError(
                 'AlertLogicAPI.Client.get_keypairs(): must specify limit if specifying offset')
         # Build parameters
