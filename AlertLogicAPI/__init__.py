@@ -215,3 +215,70 @@ class Client(object):
             raise AlertLogicAPI.Exceptions.APIError(
                 'AlertLogic.Client.update_protected_host(): API result: {}'.format(result))
         return result.json()['protectedhost']
+
+    def get_keypairs(self, cid: str = None,
+                     host: str = None,
+                     id: str = None,
+                     name: str = None,
+                     port: str = None,
+                     type: str = None,
+                     search: str = None,
+                     limit: str = None,
+                     offset: str = None
+                     ) -> list:
+        """Retrieve a list of keypairs matching specified criteria.
+
+        :param str cid: Specifies the ID of the customer account, which must be a child customer of your parent account.
+        :param str host: Specifies the IP address for the keypair host. For example, 10.0.0.1.
+        :param str name: Specifies the descriptive name for the keypair.
+        :param str id: Specifies the keypair ID.
+        :param str port: Specifies the keypair port. Valid values: 1 - 65535
+        :param str type: Specifies the keypair type. Valid value: pem
+        :param str search: Specifies any value to include in the search results. This filter queries all fields of a
+            keypair.
+        :param int limit: Specifies the maximum number of objects to return.
+        :param int offset: Specifies the offset of the first object to return. To use the offset parameter, you must
+            also specify the limit parameter.
+        :return list: list of keypairs
+        """
+        if cid is None:
+            url = '{}/api/tm/v1//keypairs'.format(
+                self.base_url
+            )
+        else:
+            url = '{}/api/tm/v1/{}/keypairs'.format(
+                self.base_url,
+                cid
+            )
+        # Input validation
+        if port is not None:
+            try:
+                i = int(port)
+            except ValueError:
+                raise AlertLogicAPI.Exceptions.ArgumentError(
+                    'AlertLogicAPI.Client.get_keypairs(): Invalid port argument, must be integer')
+            if i < 1 or i > 65535:
+                raise AlertLogicAPI.Exceptions.ArgumentError(
+                    'AlertLogicAPI.Client.get_keypairs(): Invalid port argument, must be 1 - 65535')
+        if type is not None and type not in ['pem']:
+            raise AlertLogicAPI.Exceptions.ArgumentError(
+                'AlertLogicAPI.Client.get_keypairs(): Invalid type argument, must be one of [pem]')
+        if type is not None and offset is None:
+            raise AlertLogicAPI.Exceptions.ArgumentError(
+                'AlertLogicAPI.Client.get_keypairs(): must specify limit if specifying offset')
+        # Build parameters
+        params = {
+            'host': host,
+            'id': id,
+            'name': name,
+            'port': port,
+            'type': type,
+            'search': search,
+            'limit': limit,
+            'offset': offset
+        }
+        result = requests.get(url, auth=self.auth, params=params, verify=self.verify_path)
+        if result.status_code != 200:
+            raise AlertLogicAPI.Exceptions.APIError(
+                'AlertLogic.Client.get_keypairs(): API result: {}'.format(result))
+        return result.json()['keypairs']
