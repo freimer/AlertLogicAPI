@@ -32,9 +32,10 @@ class AlertLogicAPITester(unittest.TestCase):
     info = {}
 
     def setUp(self):
-        print('setUp AlertLogicAPITester')
+        """Setup with AlertLogic account information
+
+        """
         if 'customer_id' not in self.info:
-            print('Loading / input for Alert Logic info')
             with open(os.path.expanduser('~/.alertlogic.json')) as f:
                 self.info.update(json.load(f))
             if 'customer_id' not in self.info:
@@ -45,24 +46,55 @@ class AlertLogicAPITester(unittest.TestCase):
                 self.info['data_center'] = input('Enter Data Center [US, Ashburn, UK]: ')
             if 'verify_path' not in self.info:
                 self.info['verify_path'] = input('Enter SSL Verify Path: ')
-        else:
-            print('Skipping load / input for Alert Logic info')
         self.client = AlertLogicAPI.Client(
             customer_id=self.info['customer_id'],
             apikey=self.info['apikey'],
             data_center=self.info['data_center'],
             verify_path=self.info['verify_path'])
-        print('Created AlertLogic Client')
 
 
 class GetProtectedHost(AlertLogicAPITester):
     def runTest(self):
+        """Test get_protected_host method of AlertLogicAPI.Client
+
+        """
         protectedhost_id = input('Enter Protected Host ID: ')
-        print('Retrieving Protected Host')
         host = self.client.get_protected_host(protectedhost_id)
+        self.assertIsInstance(host, dict)
 
 
 class GetProtectedHosts(AlertLogicAPITester):
     def runTest(self):
+        """Test get_protected_hosts method of AlertLogicAPI.Client
+
+        """
         hosts = self.client.get_protected_hosts(os_type='windows', offset=0, limit=2)
-        print(json.dumps(hosts, indent=2))
+        self.assertIsInstance(hosts, list)
+
+
+class UpdateProtectedHost(AlertLogicAPITester):
+    @staticmethod
+    def _get_tags(host: dict) -> list:
+        tags = []
+        if 'tags' in host:
+            for tag in host['tags']:
+                tags.append(tag['name'])
+        return tags
+
+    def runTest(self):
+        """Test the update_protected_host method of AlertLogicAPI.Client
+
+        This retrieves the first windows host, lists the tags, adds a tag, updates the host, then retrieves the host
+        again to confirm the change, then resets the existing tags.
+
+        """
+        host = self.client.get_protected_hosts(type='host', offset=0, limit=1, os_type='windows')[0]
+        tags = self._get_tags(host)
+        tags.append('AlertLogicAPITester.UpdateProtectedHost')
+        host = self.client.update_protected_host(protectedhost_id=host['id'], tags=tags)
+        tags = self._get_tags(host)
+        self.assertIn('AlertLogicAPITester.UpdateProtectedHost', tags, 'tag not successfully added')
+        tags.remove('AlertLogicAPITester.UpdateProtectedHost')
+        host = self.client.update_protected_host(protectedhost_id=host['id'], tags=tags)
+        tags = self._get_tags(host)
+        self.assertNotIn('AlertLogicAPITester.UpdateProtectedHost', tags, 'tag not successfully removed')
