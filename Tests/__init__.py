@@ -118,7 +118,8 @@ class CreateKeypair(AlertLogicAPITester):
             name='test-cert',
             host='0.0.0.0',
             certificate_path=os.path.expanduser('~/test-cert.pem'),
-            private_key_path=os.path.expanduser('~/test-cert.key')
+            private_key_path=os.path.expanduser('~/test-cert.enckey'),
+            private_key_password=self.info['private_key_password']
         )
         self.assertIsInstance(keypair, dict)
 

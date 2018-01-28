@@ -21,6 +21,7 @@ __copyright__ = "Frederick Reimer"
 __license__ = "GPL v3"
 
 import requests.auth
+import Crypto.PublicKey.RSA
 import AlertLogicAPI.Exceptions
 
 
@@ -301,7 +302,7 @@ class Client(object):
 
         This can accept a variety of methods for specifying the certificate and private key.  If the arguments ending
         with _path are used, they files specified are read and the contents used.  Otherwise, the arguments without
-        the _path must be specified.  Decrypting the private key is a TODO, and not currently supported.
+        the _path must be specified.  Decrypting the private key is performed if private_key_password is provided.
 
         :param str cid: Specifies the ID of the customer account, which must be a child customer of your parent account.
         :param str name: Specifies the descriptive name for the keypair.
@@ -341,9 +342,32 @@ class Client(object):
             raise AlertLogicAPI.Exceptions.ArgumentError(
                 'AlertLogicAPI.Client.create_keypair(): Invalid type argument, must be one of [pem]')
         if certificate_path is not None:
-            certificate = open(certificate_path).read()
+            try:
+                certificate = open(certificate_path).read()
+            except IOError:
+                raise AlertLogicAPI.Exceptions.ArgumentError(
+                    'AlertLogicAPI.Client.create_keypair(): certificate_path file "{}" unreadable'.format(
+                        certificate_path))
+        if certificate is None:
+            raise AlertLogicAPI.Exceptions.ArgumentError(
+                'AlertLogicAPI.Client.create_keypair(): certificate or certificate_path is required')
         if private_key_path is not None:
-            private_key = open(private_key_path).read()
+            try:
+                private_key = open(private_key_path).read()
+            except IOError:
+                raise AlertLogicAPI.Exceptions.ArgumentError(
+                    'AlertLogicAPI.Client.create_keypair(): private_key_path file "{}" unreadable'.format(
+                        certificate_path))
+        if private_key is None:
+            raise AlertLogicAPI.Exceptions.ArgumentError(
+                'AlertLogicAPI.Client.create_keypair(): private_key or private_key_path is required')
+        if private_key_password is not None:
+            try:
+                rsakey = Crypto.PublicKey.RSA.importKey(private_key, passphrase=private_key_password)
+            except (ValueError, IndexError, TypeError):
+                raise AlertLogicAPI.Exceptions.ArgumentError(
+                    'AlertLogicAPI.Client.create_keypair(): unable to decrypt private key')
+            private_key = rsakey.exportKey().decode()
         # Build parameters
         data = {
             'keypair': {
