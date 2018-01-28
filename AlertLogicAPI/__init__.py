@@ -115,6 +115,9 @@ class Client(object):
             raise AlertLogicAPI.Exceptions.ArgumentError(
                 'AlertLogicAPI.Client.get_protected_hosts(): Invalid type argument, must be'
                 'one of [host, role]')
+        if offset is not None and limit is None:
+            raise AlertLogicAPI.Exceptions.ArgumentError(
+                'AlertLogicAPI.Client.get_protected_hosts(): must specify limit if specifying offset')
         # Build parameters
         params = {
             'id': id,
