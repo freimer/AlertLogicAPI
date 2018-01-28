@@ -25,7 +25,7 @@ except ImportError:
 
 
 setup(name = 'AlertLogicAPI',
-    version = '0.0.5',
+    version = '0.0.6',
     description = 'Alert Logic API',
     long_description='Python interface to Alert Logic API.',
     author = 'Frederick Reimer',
