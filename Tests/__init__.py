@@ -98,3 +98,15 @@ class UpdateProtectedHost(AlertLogicAPITester):
         host = self.client.update_protected_host(protectedhost_id=host['id'], tags=tags)
         tags = self._get_tags(host)
         self.assertNotIn('AlertLogicAPITester.UpdateProtectedHost', tags, 'tag not successfully removed')
+
+
+class GetKeypairs(AlertLogicAPITester):
+    def runTest(self):
+        """Test get_keypairs method of AlertLogicAPI.Client
+
+        """
+        keypairs = self.client.get_keypairs()
+        self.assertIsInstance(keypairs, list)
+
+
+
