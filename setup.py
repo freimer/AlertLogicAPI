@@ -25,13 +25,13 @@ except ImportError:
 
 
 setup(name = 'AlertLogicAPI',
-    version = '0.0.5',
+    version = '0.0.6',
     description = 'Alert Logic API',
     long_description='Python interface to Alert Logic API.',
     author = 'Frederick Reimer',
     author_email = 'freimer@freimer.org',
-    install_requires = ['requests>=1.1.0'],
-    setup_requires = ['requests>=1.1.0'],
+    install_requires = ['requests>=1.1.0', 'pycryptodome>=3.4.8'],
+    setup_requires = ['requests>=1.1.0', 'pycryptodome>=3.4.8'],
     url = 'https://github.com/freimer/AlertLogicAPI',
     packages = ['AlertLogicAPI'],
     license = 'GPL v3',
