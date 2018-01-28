@@ -48,11 +48,17 @@ class Client(object):
         :rtype: dict
         :raises: AlertLogic.Exceptions.APIError
         """
-        url = '{}/api/tm/v1/{}/protectedhosts/{}'.format(
-            self.base_url,
-            self.customer_id,
-            protectedhost_id
-        )
+        if cid is None:
+            url = '{}/api/tm/v1//protectedhosts/{}'.format(
+                self.base_url,
+                protectedhost_id
+            )
+        else:
+            url = '{}/api/tm/v1/{}/protectedhosts/{}'.format(
+                self.base_url,
+                cid,
+                protectedhost_id
+            )
         result = requests.get(url, auth=self.auth, verify=self.verify_path)
         if result.status_code != 200:
             raise AlertLogicAPI.Exceptions.APIError(
@@ -86,10 +92,15 @@ class Client(object):
             also specify the limit parameter.
         :return list: list of the Protected Hosts per API Documentation
         """
-        url = '{}/api/tm/v1/{}/protectedhosts'.format(
-            self.base_url,
-            self.customer_id
-        )
+        if cid is None:
+            url = '{}/api/tm/v1//protectedhosts'.format(
+                self.base_url
+            )
+        else:
+            url = '{}/api/tm/v1/{}/protectedhosts'.format(
+                self.base_url,
+                cid
+            )
         # Input validation
         if status is not None and status not in ['new', 'ok', 'warning', 'error', 'offline']:
             raise AlertLogicAPI.Exceptions.ArgumentError(
@@ -124,13 +135,25 @@ class Client(object):
         # Convert JSON to struct and "unwrap" the protected hosts so they are just a list of dicts
         return [p['protectedhost'] for p in result.json()['protectedhosts']]
 
-    def delete_protected_host(self, protected_host_id: str) -> bool:
-        url = '{}/api/tm/v1/{}/protectedhosts/{}'.format(
-            self.base_url,
-            self.customer_id,
-            protected_host_id
-        )
+    def delete_protected_host(self, protected_host_id: str, cid: str = None) -> bool:
+        """Delete the specified protected host.
+
+        :param str protected_host_id: Specifies the ID of the protected host resource to delete.
+        :param str cid: Specifies the ID of the customer account, which must be a child customer of your parent account.
+        :return bool: True if deleted, False otherwise
+        """
+        if cid is None:
+            url = '{}/api/tm/v1//protectedhosts'.format(
+                self.base_url
+            )
+        else:
+            url = '{}/api/tm/v1/{}/protectedhosts'.format(
+                self.base_url,
+                cid
+            )
         result = requests.delete(url, auth=self.auth, verify=self.verify_path)
         if result.status_code == 404:
             return True
         return False
+
+    def update_protected_host(self, ):
